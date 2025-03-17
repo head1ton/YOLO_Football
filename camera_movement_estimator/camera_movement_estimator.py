@@ -34,6 +34,23 @@ class CameraMovementEstimator():
             mask=mask_features  # 마스크
         )
 
+    # 트랙 데이터와 각 프레임의 카메라 움직임 데이터를 받아서 트랙의 위치를 조정하는 함수
+    def add_adjust_positions_to_tracks(self, tracks, camera_movement_per_frame):
+        # 각 객체(예: 선수, 공, 심판 등)에 대해 반복
+        for object, object_tracks in tracks.items():
+            # 각 프레임에 대해 반복
+            for frame_num, track in enumerate(object_tracks):
+                # 각 트랙 ID에 대해 반복
+                for track_id, track_info in track.items():
+                    # 현재 트랙의 위치를 가져옴
+                    position = track_info['position']
+                    # 현재 프레임의 카메라 움직임을 가져옴
+                    camera_movement = camera_movement_per_frame[frame_num]
+                    # 카메라 움직임을 반영하여 위치를 조정
+                    position_adjusted = (position[0] - camera_movement[0], position[1] - camera_movement[1])
+                    # 조정된 위치를 트랙 데이터에 저장
+                    tracks[object][frame_num][track_id]['position_adjusted'] = position_adjusted
+
     def get_camera_movement(self, frames, read_from_stub=False, stub_path=None):
         if read_from_stub and stub_path is not None and os.path.exists(stub_path):
             with open(stub_path, 'rb') as f:

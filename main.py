@@ -16,17 +16,22 @@ from trackers import Tracker
 from team_assigner import TeamAssigner
 from player_ball_assigner import PlayerBallAssigner
 from camera_movement_estimator import CameraMovementEstimator
+from view_transformer import ViewTransformer
 
 def main():
+    # Read Video file
     video_frames = read_video('input_videos/08fd33_4.mp4')
 
+    # Initialize Tracker
     tracker = Tracker('models/best.pt')
     tracks = tracker.get_object_tracks(video_frames,
                                        read_from_stub=True,
                                        stub_path='stubs/track_stubs.pkl')
 
+    # Get object positions
     tracker.add_position_to_tracks(tracks)
 
+    # Camera Movement Estimator
     camera_movement_estimator = CameraMovementEstimator(video_frames[0])
     camera_movement_per_frame = camera_movement_estimator.get_camera_movement(video_frames,
                                                                               read_from_stub=True,
@@ -34,8 +39,14 @@ def main():
 
     camera_movement_estimator.add_adjust_positions_to_tracks(tracks, camera_movement_per_frame)
 
+    # View Transformer
+    view_transformer = ViewTransformer()
+    view_transformer.add_transformed_position_to_tracks(tracks)
+
+    # Interpolate ball position
     tracks["ball"] = tracker.interpolate_ball_position(tracks['ball'])
 
+    # Assign team and ball control
     team_assigner = TeamAssigner()
     team_assigner.assign_team_color(video_frames[0], tracks['players'][0])
 
@@ -45,6 +56,7 @@ def main():
             tracks['players'][frame_num][player_id]['team'] = team
             tracks['players'][frame_num][player_id]['team_color'] = team_assigner.team_colors[team]
 
+    # Assign ball to player
     player_assigner = PlayerBallAssigner()
     team_ball_control = []
     for frame_num, player_track in enumerate(tracks['players']):
@@ -65,6 +77,7 @@ def main():
     ## Draw camera movement
     output_video_frames = camera_movement_estimator.draw_camera_movement(output_video_frames, camera_movement_per_frame)
 
+    # Save Video
     save_video(output_video_frames, 'output_videos/output_video.mp4')
 
 if __name__ == "__main__":

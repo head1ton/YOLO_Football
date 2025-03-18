@@ -1,3 +1,9 @@
+* YOLO : AI object detection model
+* KMeans : Pixel segmentation and clustering to detect t-shirt color
+* Optical Flow : Measure camera movement
+* Perspective Transformation : Represent scene depth and perspective
+* Speed and distance calculation per player
+
 YOLO v8x
 
 Data Video : 
@@ -10,3 +16,13 @@ https://universe.roboflow.com/roboflow-jvuqo/football-players-detection-3zvbc/da
 
 Colab OutOfMemory...
 models: https://drive.google.com/file/d/1DC2kCygbBWUKheQ_9cFziCsYVSRw6axK/view
+
+
+* Python 3.x
+* ultralytics
+* supervision
+* OpenCV
+* Numpy
+* Pandas
+* Matplotlib
+* Google Colab
